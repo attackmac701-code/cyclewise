@@ -40,6 +40,9 @@ import { PHASES } from '../data/phases.ts';
           <!-- Populated by JS -->
         </div>
 
+        <!-- Detail — scroll to see -->
+        <div id="today-detail" class="today-detail"></div>
+
         <!-- Pro teaser / Pro content -->
         <div id="pro-section"></div>
       </div>
@@ -260,6 +263,11 @@ import { PHASES } from '../data/phases.ts';
         <h3 class="heading-do">Do this today</h3>
         <ul>${p.doThis.slice(0,4).map(f => `<li>${f}</li>`).join('')}</ul>
       </div>
+    `;
+
+    // Detail section — below the fold
+    const detail = document.getElementById('today-detail');
+    detail.innerHTML = `
       <div class="briefing-insight">
         <p>${p.insight}</p>
       </div>
@@ -575,6 +583,8 @@ import { PHASES } from '../data/phases.ts';
   .briefing-block li::before { content: '·'; position: absolute; left: 0; color: var(--text-dim); }
   .do-block { border-color: rgba(52,211,153,0.15); }
   .do-block li::before { color: #34d399; }
+  .today-detail { margin-top: 8px; display: flex; flex-direction: column; gap: 10px; }
+
   /* FOOTNOTE */
   .briefing-footnote {
     grid-column: 1 / -1;
