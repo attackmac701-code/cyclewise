@@ -1,0 +1,114 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+const sessionId = Astro.url.searchParams.get('session_id');
+let token: string | null = null;
+let error = false;
+
+if (sessionId) {
+  try {
+    const env = (Astro.locals as any).runtime?.env;
+    const stripeSecret = env?.STRIPE_SECRET_KEY;
+    const kv = env?.PRO_TOKENS;
+
+    // Verify Stripe session
+    const res = await fetch(`https://api.stripe.com/v1/checkout/sessions/${sessionId}`, {
+      headers: { Authorization: `Bearer ${stripeSecret}` },
+    });
+
+    if (res.ok) {
+      const session = await res.json() as { payment_status: string };
+      if (session.payment_status === 'paid') {
+        // Generate a token
+        token = crypto.randomUUID();
+        if (kv) {
+          await kv.put(`token:${token}`, 'pro', { expirationTtl: 60 * 60 * 24 * 365 * 10 }); // 10 years
+        }
+      } else {
+        error = true;
+      }
+    } else {
+      error = true;
+    }
+  } catch (e) {
+    error = true;
+  }
+} else {
+  error = true;
+}
+---
+<Layout title="CycleWise Pro — Payment Successful">
+  <div class="page-wrap" style="text-align:center;max-width:560px;margin:0 auto;padding-top:80px;">
+    {!error && token ? (
+      <div class="success-card">
+        <div class="success-emoji">🎉</div>
+        <h1>You're in.</h1>
+        <p class="success-sub">Welcome to CycleWise Pro. Your access link is below — bookmark it to use on any device.</p>
+        <div class="token-box">
+          <p class="token-label">Your Pro Access Link</p>
+          <code id="pro-link" class="token-link">{`https://cyclewise.app/app?pro=${token}`}</code>
+          <button id="copy-btn" class="btn btn-outline" style="margin-top:14px;width:100%;">Copy Link</button>
+        </div>
+        <p class="token-note">⚠️ Save this link. This is how you activate Pro on any device.</p>
+        <a href={`/app?pro=${token}`} class="btn btn-primary" style="margin-top:28px;width:100%;">Open CycleWise Pro</a>
+      </div>
+    ) : (
+      <div class="error-card">
+        <div class="error-emoji">😕</div>
+        <h1>Something went wrong</h1>
+        <p>We couldn't verify your payment. If you were charged, please contact us with your Stripe receipt and we'll sort it out immediately.</p>
+        <a href="/pro" class="btn btn-outline" style="margin-top:28px;">Try Again</a>
+      </div>
+    )}
+  </div>
+</Layout>
+
+<script>
+  const btn = document.getElementById('copy-btn');
+  const link = document.getElementById('pro-link');
+  if (btn && link) {
+    btn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(link.textContent || '');
+        btn.textContent = '✅ Copied!';
+        setTimeout(() => { btn.textContent = 'Copy Link'; }, 2000);
+      } catch {
+        btn.textContent = 'Copy manually ↑';
+      }
+    });
+  }
+
+  // Auto-activate pro in this browser
+  const params = new URLSearchParams(window.location.search);
+</script>
+
+<style>
+  .success-card, .error-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 40px 32px;
+  }
+  .success-card { border-color: rgba(52,211,153,0.25); }
+  .success-emoji, .error-emoji { font-size: 52px; margin-bottom: 20px; }
+  h1 { margin-bottom: 12px; }
+  .success-sub { color: var(--text-muted); font-size: 16px; line-height: 1.6; margin-bottom: 28px; }
+  .token-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    text-align: left;
+  }
+  .token-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-dim); margin-bottom: 10px; }
+  .token-link {
+    display: block;
+    font-size: 13px;
+    color: var(--pink);
+    word-break: break-all;
+    line-height: 1.5;
+    font-family: monospace;
+  }
+  .token-note { font-size: 13px; color: var(--text-dim); margin-top: 16px; line-height: 1.5; }
+  .error-card p { color: var(--text-muted); font-size: 15px; line-height: 1.7; margin-top: 12px; }
+</style>

@@ -1,0 +1,21 @@
+{
+	"compatibility_date": "2026-06-14",
+	"compatibility_flags": [
+		"global_fetch_strictly_public"
+	],
+	"name": "cyclewise",
+	"main": "@astrojs/cloudflare/entrypoints/server",
+	"assets": {
+		"directory": "./dist",
+		"binding": "ASSETS"
+	},
+	"observability": {
+		"enabled": true
+	},
+	"kv_namespaces": [
+		{
+			"binding": "PRO_TOKENS",
+			"id": "PLACEHOLDER_KV_ID"
+		}
+	]
+}

@@ -1,0 +1,156 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+<Layout title="CycleWise Pro — Unlock Deeper Guidance">
+  <div class="page-wrap">
+    <div class="pro-hero">
+      <span class="badge badge-pink">Pro Upgrade</span>
+      <h1>Go deeper.<br /><span class="gradient-text">Know more.</span></h1>
+      <p class="hero-sub">Free CycleWise tells you what phase she's in. Pro tells you exactly how to navigate it — from insider timing tips to intimacy guidance. One payment. Forever.</p>
+    </div>
+
+    <div class="pro-grid">
+      <!-- Feature list -->
+      <div class="feature-list">
+        <h2>Everything in Pro</h2>
+        <div class="feature-item">
+          <div class="feature-icon">🌟</div>
+          <div>
+            <strong>Insider Phase Tips</strong>
+            <p>Specific, actionable advice for each phase — beyond the basics. Things most men never figure out.</p>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">💑</div>
+          <div>
+            <strong>Intimacy Guidance</strong>
+            <p>How desire, connection, and physical closeness shifts each phase. What to offer, what to hold back, how to read the room.</p>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">⚡</div>
+          <div>
+            <strong>Phase Transition Warnings</strong>
+            <p>Heads-up before she enters the PMS zone or hits peak energy. No more being caught off guard.</p>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">🧭</div>
+          <div>
+            <strong>Partner Strategy Notes</strong>
+            <p>Real talk on how to play each phase — what moves the needle, what blows it up.</p>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">🔓</div>
+          <div>
+            <strong>One Payment, Forever</strong>
+            <p>No subscription. Pay once, use it as long as you want. $4.99.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Checkout card -->
+      <div class="checkout-card">
+        <div class="checkout-header">
+          <div class="checkout-emoji">🌙</div>
+          <div>
+            <div class="checkout-plan">CycleWise Pro</div>
+            <div class="checkout-price">$4.99 <span>one-time</span></div>
+          </div>
+        </div>
+        <ul class="checkout-features">
+          <li>✅ All free features</li>
+          <li>🌟 Insider Tips per phase</li>
+          <li>💑 Intimacy guidance</li>
+          <li>⚡ Phase transition warnings</li>
+          <li>🧭 Partner strategy notes</li>
+          <li>🔒 Data never leaves your device</li>
+        </ul>
+        <form id="checkout-form" action="/api/checkout" method="POST">
+          <button type="submit" class="btn btn-primary checkout-btn">
+            Unlock Pro — $4.99
+          </button>
+        </form>
+        <p class="checkout-note">Secure payment via Stripe. No subscription. Cancel nothing.</p>
+        <div class="checkout-badges">
+          <span>🔒 SSL Encrypted</span>
+          <span>💳 Stripe Secure</span>
+          <span>↩️ 7-day refund</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- FAQ -->
+    <div class="faq-section">
+      <h2>Questions</h2>
+      <div class="faq-grid">
+        <div class="faq-item">
+          <strong>Is this really a one-time payment?</strong>
+          <p>Yes. $4.99 once. No recurring charges, ever.</p>
+        </div>
+        <div class="faq-item">
+          <strong>Does my data get sent anywhere?</strong>
+          <p>No. All cycle data is stored in your browser's local storage. We never see it, store it, or share it.</p>
+        </div>
+        <div class="faq-item">
+          <strong>What if I switch devices?</strong>
+          <p>After payment you'll get a bookmarkable Pro link. Open that link on any device to activate Pro access.</p>
+        </div>
+        <div class="faq-item">
+          <strong>Can I get a refund?</strong>
+          <p>Yes — email us within 7 days of purchase, no questions asked.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .pro-hero { text-align: center; margin-bottom: 64px; }
+  .pro-hero .badge { margin-bottom: 20px; }
+  .pro-hero h1 { margin-bottom: 18px; }
+  .gradient-text { background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .hero-sub { font-size: 17px; color: var(--text-muted); max-width: 520px; margin: 0 auto; line-height: 1.7; }
+
+  .pro-grid { display: grid; grid-template-columns: 1fr 380px; gap: 40px; align-items: start; margin-bottom: 64px; }
+
+  .feature-list { display: flex; flex-direction: column; gap: 28px; }
+  .feature-list h2 { margin-bottom: 8px; }
+  .feature-item { display: flex; gap: 16px; align-items: flex-start; }
+  .feature-icon { font-size: 24px; flex-shrink: 0; }
+  .feature-item strong { display: block; font-size: 16px; margin-bottom: 4px; }
+  .feature-item p { color: var(--text-muted); font-size: 14px; line-height: 1.6; }
+
+  .checkout-card {
+    background: var(--surface);
+    border: 1px solid rgba(236,72,153,0.25);
+    border-radius: var(--radius);
+    padding: 28px;
+    box-shadow: 0 0 40px rgba(236,72,153,0.08), var(--shadow);
+    position: sticky;
+    top: 80px;
+  }
+  .checkout-header { display: flex; gap: 16px; align-items: center; margin-bottom: 24px; }
+  .checkout-emoji { font-size: 36px; }
+  .checkout-plan { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--pink); margin-bottom: 4px; }
+  .checkout-price { font-size: 32px; font-weight: 800; letter-spacing: -0.02em; }
+  .checkout-price span { font-size: 14px; font-weight: 400; color: var(--text-muted); }
+  .checkout-features { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
+  .checkout-features li { font-size: 14px; color: var(--text-muted); }
+  .checkout-btn { width: 100%; font-size: 16px; padding: 14px; }
+  .checkout-note { text-align: center; font-size: 12px; color: var(--text-dim); margin-top: 12px; }
+  .checkout-badges { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; margin-top: 14px; }
+  .checkout-badges span { font-size: 11px; color: var(--text-dim); }
+
+  .faq-section h2 { margin-bottom: 28px; }
+  .faq-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+  .faq-item { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+  .faq-item strong { display: block; margin-bottom: 8px; font-size: 15px; }
+  .faq-item p { color: var(--text-muted); font-size: 14px; line-height: 1.6; }
+
+  @media (max-width: 800px) {
+    .pro-grid { grid-template-columns: 1fr; }
+    .checkout-card { position: static; }
+  }
+</style>
