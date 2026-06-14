@@ -23,6 +23,9 @@ import { PHASES } from '../data/phases.ts';
     </div>
   </div>
 
+  <!-- Fixed top-right settings button -->
+  <button id="edit-setup" class="settings-corner-btn" title="Edit cycle settings" style="display:none;">⚙️</button>
+
   <div class="app-wrap" id="app-content" style="display:none;">
 
     <!-- TAB: HOME -->
@@ -32,7 +35,6 @@ import { PHASES } from '../data/phases.ts';
           <div class="today-meta">
             <div id="today-cycle-day" class="cycle-day-badge">Day —</div>
             <button id="new-period-btn" class="new-period-btn" title="Her period started today">New Period</button>
-            <button id="edit-setup" class="edit-btn" title="Edit cycle settings">⚙️</button>
           </div>
           <div id="today-phase-emoji" class="today-emoji">🌙</div>
           <h1 id="today-phase-name" class="today-phase-name">Loading...</h1>
@@ -40,7 +42,7 @@ import { PHASES } from '../data/phases.ts';
           <div id="today-quote" class="today-quote"></div>
         </div>
       </div>
-      <div class="calendar-section page-wrap">
+      <div class="calendar-section page-wrap" style="padding-top:20px;">
         <div class="cal-nav">
           <button id="cal-prev" class="cal-nav-btn">←</button>
           <span id="cal-month-label" class="cal-month-label">—</span>
@@ -419,11 +421,10 @@ import { PHASES } from '../data/phases.ts';
       const phaseShort = { menstrual: 'Menstrual', follicular: 'Follicular', ovulation: 'Ovulation', luteal: 'Luteal' };
 
       html += `<div class="cal-cell ${phase || ''} ${isToday ? 'cal-today' : ''} ${isPast ? 'cal-past' : ''}"
-        style="${p ? `background:${p.colorBg.replace('0.12','0.18')};border-color:${p.color}33;` : 'background:var(--surface2);border-color:var(--border);'}"
+        style="${p ? `background:${p.colorBg};border-color:${p.color}22;` : 'background:var(--surface2);border-color:var(--border);'}"
         title="${p ? `Day ${cycleDay} — ${p.name}` : ''}">
-        <span class="cal-num" style="${isToday ? `color:white;` : p ? `color:${p.color};` : 'color:var(--text-dim);'}">${d}</span>
-        ${p ? `<span class="cal-cycle-day" style="color:${p.color};opacity:0.7;">Day ${cycleDay}</span>` : ''}
-        ${p ? `<span class="cal-phase-name" style="color:${p.color};">${phaseShort[phase]}</span>` : ''}
+        <span class="cal-num" style="${isToday ? `color:white;font-weight:800;` : p ? `color:${p.color};` : 'color:var(--text-dim);'}">${d}</span>
+        ${p ? `<span class="cal-cycle-day" style="color:${p.color};opacity:0.6;">Day ${cycleDay}</span>` : ''}
         ${isToday ? `<span class="cal-today-dot" style="background:${p ? p.color : 'white'};"></span>` : ''}
       </div>`;
     }
@@ -492,6 +493,7 @@ import { PHASES } from '../data/phases.ts';
     if (!data) {
       document.getElementById('setup-modal').style.display = 'flex';
       document.getElementById('app-content').style.display = 'none';
+      document.getElementById('edit-setup').style.display = 'none';
 
       // Pre-fill today's date
       const today = new Date();
@@ -502,6 +504,7 @@ import { PHASES } from '../data/phases.ts';
     } else {
       document.getElementById('setup-modal').style.display = 'none';
       document.getElementById('app-content').style.display = 'block';
+      document.getElementById('edit-setup').style.display = 'block';
 
       renderTodayCard(data);
 
@@ -657,7 +660,7 @@ import { PHASES } from '../data/phases.ts';
 
   /* TODAY CARD */
   .today-section {
-    padding: 64px 24px 56px;
+    padding: 64px 24px 24px;
     text-align: center;
     background: var(--bg);
     border-bottom: 1px solid var(--border);
@@ -676,12 +679,14 @@ import { PHASES } from '../data/phases.ts';
     font-family: inherit; transition: all 0.15s;
   }
   .new-period-btn:hover { background: rgba(236,72,153,0.18); border-color: var(--pink); }
-  .edit-btn {
-    background: none; border: 1px solid var(--border); border-radius: 8px;
-    padding: 5px 10px; font-size: 12px; color: var(--text-muted); cursor: pointer;
-    transition: border-color 0.15s, color 0.15s; font-family: inherit;
+  .settings-corner-btn {
+    position: fixed; top: 14px; right: 16px; z-index: 300;
+    background: rgba(255,255,255,0.07); border: 1px solid var(--border);
+    border-radius: 10px; padding: 7px 10px; font-size: 18px;
+    cursor: pointer; transition: background 0.15s, border-color 0.15s;
+    backdrop-filter: blur(8px);
   }
-  .edit-btn:hover { border-color: var(--text-muted); color: var(--text); }
+  .settings-corner-btn:hover { background: rgba(255,255,255,0.13); border-color: var(--text-muted); }
   .today-emoji { font-size: 72px; margin-bottom: 16px; line-height: 1; }
   .today-phase-name { font-size: clamp(32px, 6vw, 54px); font-weight: 700; margin-bottom: 8px; letter-spacing: -0.01em; }
   .today-tagline { font-size: 15px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 20px; }
@@ -804,13 +809,13 @@ import { PHASES } from '../data/phases.ts';
     padding: 4px 0 10px;
   }
   .cal-cell {
-    border-radius: 10px;
+    border-radius: 8px;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     gap: 2px; cursor: default;
     border: 1px solid transparent;
     transition: transform 0.15s, box-shadow 0.15s;
-    min-height: 72px;
-    padding: 6px 4px;
+    min-height: 56px;
+    padding: 4px;
     position: relative;
   }
   .cal-cell:hover:not(.empty) { transform: scale(1.04); box-shadow: 0 4px 16px rgba(0,0,0,0.3); }
