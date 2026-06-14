@@ -84,6 +84,70 @@ import { PHASES } from '../data/phases.ts';
 </Layout>
 
 <script>
+  // Daily quotes per phase
+  const QUOTES = {
+    menstrual: [
+      { text: 'Almost everything will work again if you unplug it for a few minutes — including you.', author: 'Anne Lamott' },
+      { text: 'Rest is not idleness, and to lie sometimes on the grass under trees on a summer\'s day is by no means a waste of time.', author: 'John Lubbock' },
+      { text: 'In the middle of difficulty lies opportunity — but first, rest.', author: 'Adapted from Einstein' },
+      { text: 'Nourishing yourself in a way that helps you blossom in the direction you want to go is attainable.', author: 'Deborah Day' },
+      { text: 'Take rest; a field that has rested gives a bountiful crop.', author: 'Ovid' },
+      { text: 'The quieter you become, the more you are able to hear.', author: 'Rumi' },
+      { text: 'Sometimes the most productive thing you can do is rest.', author: 'Mark Black' },
+      { text: 'Within you there is a stillness and a sanctuary to which you can retreat at any time.', author: 'Hermann Hesse' },
+      { text: 'Surrender to what is. Let go of what was. Have faith in what will be.', author: 'Sonia Ricotti' },
+      { text: 'The soul always knows what to do to heal itself. The challenge is to silence the mind.', author: 'Caroline Myss' },
+    ],
+    follicular: [
+      { text: 'With the new day comes new strength and new thoughts.', author: 'Eleanor Roosevelt' },
+      { text: 'Every morning we are born again. What we do today matters most.', author: 'Buddha' },
+      { text: 'Life is not measured by the number of breaths we take, but by the moments that take our breath away.', author: 'Maya Angelou' },
+      { text: 'The secret of getting ahead is getting started.', author: 'Mark Twain' },
+      { text: 'Energy and persistence conquer all things.', author: 'Benjamin Franklin' },
+      { text: 'Enthusiasm is the electricity of life.', author: 'Gordon Parks' },
+      { text: 'In the spring, at the end of the day, you should smell like dirt.', author: 'Margaret Atwood' },
+      { text: 'Do something today that your future self will thank you for.', author: 'Sean Patrick Flanery' },
+      { text: 'The beginning is always today.', author: 'Mary Shelley' },
+      { text: 'Act as if what you do makes a difference. It does.', author: 'William James' },
+    ],
+    ovulation: [
+      { text: 'You are enough just as you are. Each emotion you feel, everything in your life — it is there for a reason.', author: 'Peaceful Warrior' },
+      { text: 'To love and be loved is to feel the sun from both sides.', author: 'David Viscott' },
+      { text: 'We are most alive when we are in love.', author: 'John Updike' },
+      { text: 'The best and most beautiful things in the world cannot be seen or even touched — they must be felt with the heart.', author: 'Helen Keller' },
+      { text: 'Wherever you go, go with all your heart.', author: 'Confucius' },
+      { text: 'You yourself, as much as anybody in the entire universe, deserve your love and affection.', author: 'Buddha' },
+      { text: 'Be the energy you want to attract.', author: 'Ancient Proverb' },
+      { text: 'Joy is not in things; it is in us.', author: 'Richard Wagner' },
+      { text: 'Confidence is not "they will like me." Confidence is "I\'ll be fine if they don\'t."', author: 'Unknown' },
+      { text: 'Love is composed of a single soul inhabiting two bodies.', author: 'Aristotle' },
+    ],
+    luteal: [
+      { text: 'The greatest remedy for anger is delay.', author: 'Seneca' },
+      { text: 'Speak when you are angry and you will make the best speech you will ever regret.', author: 'Ambrose Bierce' },
+      { text: 'Silence is a true friend who never betrays.', author: 'Confucius' },
+      { text: 'Be kind, for everyone you meet is fighting a battle you know nothing about.', author: 'Wendy Mass' },
+      { text: 'Kindness is the language which the deaf can hear and the blind can see.', author: 'Mark Twain' },
+      { text: 'When you talk, you are only repeating what you know. But if you listen, you may learn something new.', author: 'Dalai Lama' },
+      { text: 'Anyone can become angry — that is easy. But to be angry with the right person, to the right degree, at the right time — that is not easy.', author: 'Aristotle' },
+      { text: 'Patience is not the ability to wait, but the ability to keep a good attitude while waiting.', author: 'Joyce Meyer' },
+      { text: 'He that can have patience can have what he will.', author: 'Benjamin Franklin' },
+      { text: 'No act of kindness, no matter how small, is ever wasted.', author: 'Aesop' },
+      { text: 'Better to remain silent and be thought a fool than to speak and remove all doubt.', author: 'Abraham Lincoln' },
+      { text: 'In the confrontation between the stream and the rock, the stream always wins — not through strength but through persistence.', author: 'Buddha' },
+      { text: 'A gentle answer turns away wrath, but a harsh word stirs up anger.', author: 'Proverbs 15:1' },
+      { text: 'The first to apologize is the bravest. The first to forgive is the strongest.', author: 'Ancient Proverb' },
+      { text: 'Grant me the serenity to accept what I cannot change, courage to change what I can, and wisdom to know the difference.', author: 'Serenity Prayer' },
+    ],
+  };
+
+  function getDailyQuote(phase) {
+    const quotes = QUOTES[phase];
+    const today = new Date();
+    const dayIndex = Math.floor(today.getTime() / (1000 * 60 * 60 * 24));
+    return quotes[dayIndex % quotes.length];
+  }
+
   // Moon SVG graphics — one per cycle phase
   function getMoonSVG(phase, size = 80) {
     const id = phase + size;
@@ -254,6 +318,7 @@ import { PHASES } from '../data/phases.ts';
 
     // Briefing
     const briefing = document.getElementById('today-briefing');
+    const quote = getDailyQuote(phase);
     briefing.innerHTML = `
       <div class="briefing-block">
         <h3 class="heading-feel">She may be feeling</h3>
@@ -263,19 +328,14 @@ import { PHASES } from '../data/phases.ts';
         <h3 class="heading-do">Do this today</h3>
         <ul>${p.doThis.slice(0,4).map(f => `<li>${f}</li>`).join('')}</ul>
       </div>
+      <div class="quote-card" style="border-color:${p.color}22;">
+        <div class="quote-mark" style="color:${p.color};">&#8220;</div>
+        <blockquote>${quote.text}</blockquote>
+        <cite>— ${quote.author}</cite>
+      </div>
     `;
 
-    // Detail section — below the fold
-    const detail = document.getElementById('today-detail');
-    detail.innerHTML = `
-      <div class="briefing-insight">
-        <p>${p.insight}</p>
-      </div>
-      <div class="briefing-footnote">
-        <span class="footnote-label">Avoid:</span>
-        ${p.avoidThis.slice(0,3).map(f => `<span class="footnote-item">${f}</span>`).join('')}
-      </div>
-    `;
+    document.getElementById('today-detail').innerHTML = '';
 
     // Pro section
     const proSec = document.getElementById('pro-section');
@@ -584,6 +644,40 @@ import { PHASES } from '../data/phases.ts';
   .do-block { border-color: rgba(52,211,153,0.15); }
   .do-block li::before { color: #34d399; }
   .today-detail { margin-top: 8px; display: flex; flex-direction: column; gap: 10px; }
+
+  /* QUOTE */
+  .quote-card {
+    grid-column: 1 / -1;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+    text-align: center;
+    position: relative;
+  }
+  .quote-mark {
+    font-size: 48px;
+    line-height: 0.6;
+    font-family: Georgia, serif;
+    margin-bottom: 8px;
+    opacity: 0.6;
+  }
+  .quote-card blockquote {
+    font-size: 15px;
+    color: var(--text);
+    line-height: 1.7;
+    font-style: italic;
+    margin-bottom: 12px;
+    font-weight: 400;
+  }
+  .quote-card cite {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-style: normal;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
 
   /* FOOTNOTE */
   .briefing-footnote {
