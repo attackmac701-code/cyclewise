@@ -8,10 +8,17 @@ import { PHASES } from '../data/phases.ts';
     <div class="modal-card">
       <div class="modal-emoji">🌙</div>
       <h2>Set up CycleWise</h2>
-      <p>Enter the first day of her last period and her average cycle length. This stays on your device — we never see it.</p>
+
+      <!-- Mode toggle -->
+      <div class="setup-toggle">
+        <button class="setup-mode-btn active" id="mode-exact">I know the date</button>
+        <button class="setup-mode-btn" id="mode-guess">Best Guess</button>
+      </div>
+
+      <!-- Exact date form -->
       <form id="setup-form">
         <label>
-          <span>First day of last period</span>
+          <span>First day of her last period</span>
           <input type="date" id="period-date" required />
         </label>
         <label>
@@ -20,6 +27,39 @@ import { PHASES } from '../data/phases.ts';
         </label>
         <button type="submit" class="btn btn-primary" style="width:100%;">Start Tracking</button>
       </form>
+
+      <!-- Best guess form -->
+      <div id="guess-form" style="display:none;">
+        <p class="guess-label">What phase is she in right now?</p>
+        <div class="phase-picker">
+          <button class="phase-pick-btn" data-phase="menstrual" data-day="3">
+            <span class="pick-moon">🌑</span>
+            <span class="pick-name">Menstrual</span>
+            <span class="pick-sub">Days 1–5</span>
+          </button>
+          <button class="phase-pick-btn" data-phase="follicular" data-day="10">
+            <span class="pick-moon">🌒</span>
+            <span class="pick-name">Follicular</span>
+            <span class="pick-sub">Days 6–13</span>
+          </button>
+          <button class="phase-pick-btn" data-phase="ovulation" data-day="14">
+            <span class="pick-moon">🌕</span>
+            <span class="pick-name">Ovulation</span>
+            <span class="pick-sub">Days 14–16</span>
+          </button>
+          <button class="phase-pick-btn" data-phase="luteal" data-day="21">
+            <span class="pick-moon">🌘</span>
+            <span class="pick-name">Luteal</span>
+            <span class="pick-sub">Days 17–28</span>
+          </button>
+        </div>
+        <label style="margin-top:16px;display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:500;color:var(--text-muted)">
+          <span>Average cycle length (days)</span>
+          <input type="number" id="cycle-length-guess" value="28" min="21" max="35" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text);font-size:15px;font-family:inherit;outline:none;" />
+        </label>
+        <p id="guess-result" class="guess-result" style="display:none;"></p>
+        <button id="guess-submit" class="btn btn-primary" style="width:100%;margin-top:16px;" disabled>Start Tracking</button>
+      </div>
     </div>
   </div>
 
@@ -525,6 +565,51 @@ import { PHASES } from '../data/phases.ts';
     }
   }
 
+  // Setup mode toggle
+  let selectedPhaseDay = null;
+
+  document.getElementById('mode-exact').addEventListener('click', () => {
+    document.getElementById('mode-exact').classList.add('active');
+    document.getElementById('mode-guess').classList.remove('active');
+    document.getElementById('setup-form').style.display = 'flex';
+    document.getElementById('guess-form').style.display = 'none';
+  });
+
+  document.getElementById('mode-guess').addEventListener('click', () => {
+    document.getElementById('mode-guess').classList.add('active');
+    document.getElementById('mode-exact').classList.remove('active');
+    document.getElementById('setup-form').style.display = 'none';
+    document.getElementById('guess-form').style.display = 'block';
+  });
+
+  document.querySelector('.phase-picker').addEventListener('click', (e) => {
+    const btn = e.target.closest('.phase-pick-btn');
+    if (!btn) return;
+    document.querySelectorAll('.phase-pick-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    selectedPhaseDay = parseInt(btn.dataset.day);
+    const phaseName = btn.querySelector('.pick-name').textContent;
+    // Back-calculate last period date
+    const today = new Date();
+    const lastPeriod = new Date(today.getTime() - (selectedPhaseDay - 1) * 24 * 60 * 60 * 1000);
+    const yyyy = lastPeriod.getFullYear();
+    const mm = String(lastPeriod.getMonth() + 1).padStart(2, '0');
+    const dd = String(lastPeriod.getDate()).padStart(2, '0');
+    const result = document.getElementById('guess-result');
+    result.textContent = `Best guess: period started around ${mm}/${dd}/${yyyy}`;
+    result.style.display = 'block';
+    document.getElementById('guess-submit').disabled = false;
+    document.getElementById('guess-submit').dataset.date = `${yyyy}-${mm}-${dd}`;
+  });
+
+  document.getElementById('guess-submit').addEventListener('click', () => {
+    const date = document.getElementById('guess-submit').dataset.date;
+    const length = parseInt(document.getElementById('cycle-length-guess').value) || 28;
+    if (!date) return;
+    saveData({ lastPeriodDate: date, cycleLength: length });
+    init();
+  });
+
   document.getElementById('setup-form').addEventListener('submit', (e) => {
     e.preventDefault();
     const date = document.getElementById('period-date').value;
@@ -634,6 +719,29 @@ import { PHASES } from '../data/phases.ts';
   }
   .modal-card input:focus { border-color: var(--pink); }
 
+  .setup-toggle { display: flex; gap: 8px; margin-bottom: 24px; }
+  .setup-mode-btn {
+    flex: 1; padding: 9px; border-radius: 8px; font-size: 13px; font-weight: 600;
+    font-family: inherit; cursor: pointer; transition: all 0.15s;
+    background: var(--surface2); border: 1px solid var(--border); color: var(--text-muted);
+  }
+  .setup-mode-btn.active { background: var(--gradient); border-color: transparent; color: white; }
+
+  .guess-label { font-size: 14px; color: var(--text-muted); margin-bottom: 14px; font-weight: 500; }
+  .phase-picker { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .phase-pick-btn {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    background: var(--surface2); border: 1.5px solid var(--border);
+    border-radius: 10px; padding: 14px 8px; cursor: pointer;
+    font-family: inherit; transition: all 0.15s;
+  }
+  .phase-pick-btn:hover { border-color: var(--pink); }
+  .phase-pick-btn.selected { border-color: var(--pink); background: rgba(236,72,153,0.08); }
+  .pick-moon { font-size: 24px; }
+  .pick-name { font-size: 13px; font-weight: 700; color: var(--text); }
+  .pick-sub { font-size: 10px; color: var(--text-dim); }
+  .guess-result { font-size: 12px; color: var(--pink); text-align: center; margin-top: 10px; font-style: italic; }
+
   /* APP LAYOUT */
   .app-wrap { padding-bottom: 80px; }
   .tab-page { display: none; }
@@ -646,12 +754,14 @@ import { PHASES } from '../data/phases.ts';
     backdrop-filter: blur(16px);
     border-top: 1px solid var(--border);
     display: flex;
+    justify-content: center;
+    gap: 48px;
     padding: 8px 0 max(8px, env(safe-area-inset-bottom));
   }
   .nav-btn {
-    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
     background: none; border: none; cursor: pointer; font-family: inherit;
-    color: var(--text-dim); padding: 6px 0; transition: color 0.15s;
+    color: var(--text-dim); padding: 6px 16px; transition: color 0.15s;
   }
   .nav-btn.active { color: var(--pink); }
   .nav-btn span { font-size: 11px; font-weight: 600; letter-spacing: 0.03em; }
