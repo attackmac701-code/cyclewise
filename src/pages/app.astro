@@ -57,6 +57,10 @@ import { PHASES } from '../data/phases.ts';
           <span>Average cycle length (days)</span>
           <input type="number" id="cycle-length-guess" value="28" min="21" max="35" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text);font-size:15px;font-family:inherit;outline:none;" />
         </label>
+        <label id="guess-date-label" style="display:none;margin-top:16px;flex-direction:column;gap:6px;font-size:14px;font-weight:500;color:var(--text-muted);">
+          <span>When was she in this phase?</span>
+          <input type="date" id="guess-date" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text);font-size:15px;font-family:inherit;outline:none;" />
+        </label>
         <p id="guess-result" class="guess-result" style="display:none;"></p>
         <button id="guess-submit" class="btn btn-primary" style="width:100%;margin-top:16px;" disabled>Start Tracking</button>
       </div>
@@ -582,25 +586,39 @@ import { PHASES } from '../data/phases.ts';
     document.getElementById('guess-form').style.display = 'block';
   });
 
+  function recalcGuess() {
+    if (!selectedPhaseDay) return;
+    const dateInput = document.getElementById('guess-date').value;
+    const refDate = dateInput ? new Date(dateInput + 'T12:00:00') : new Date();
+    const lastPeriod = new Date(refDate.getTime() - (selectedPhaseDay - 1) * 24 * 60 * 60 * 1000);
+    const yyyy = lastPeriod.getFullYear();
+    const mm = String(lastPeriod.getMonth() + 1).padStart(2, '0');
+    const dd = String(lastPeriod.getDate()).padStart(2, '0');
+    const result = document.getElementById('guess-result');
+    result.textContent = `Estimated period start: ${mm}/${dd}/${yyyy}`;
+    result.style.display = 'block';
+    document.getElementById('guess-submit').disabled = false;
+    document.getElementById('guess-submit').dataset.date = `${yyyy}-${mm}-${dd}`;
+  }
+
   document.querySelector('.phase-picker').addEventListener('click', (e) => {
     const btn = e.target.closest('.phase-pick-btn');
     if (!btn) return;
     document.querySelectorAll('.phase-pick-btn').forEach(b => b.classList.remove('selected'));
     btn.classList.add('selected');
     selectedPhaseDay = parseInt(btn.dataset.day);
-    const phaseName = btn.querySelector('.pick-name').textContent;
-    // Back-calculate last period date
+    // Show date picker
+    const dateLabel = document.getElementById('guess-date-label');
+    dateLabel.style.display = 'flex';
+    // Pre-fill today
     const today = new Date();
-    const lastPeriod = new Date(today.getTime() - (selectedPhaseDay - 1) * 24 * 60 * 60 * 1000);
-    const yyyy = lastPeriod.getFullYear();
-    const mm = String(lastPeriod.getMonth() + 1).padStart(2, '0');
-    const dd = String(lastPeriod.getDate()).padStart(2, '0');
-    const result = document.getElementById('guess-result');
-    result.textContent = `Best guess: period started around ${mm}/${dd}/${yyyy}`;
-    result.style.display = 'block';
-    document.getElementById('guess-submit').disabled = false;
-    document.getElementById('guess-submit').dataset.date = `${yyyy}-${mm}-${dd}`;
+    if (!document.getElementById('guess-date').value) {
+      document.getElementById('guess-date').value = today.toISOString().split('T')[0];
+    }
+    recalcGuess();
   });
+
+  document.getElementById('guess-date').addEventListener('change', recalcGuess);
 
   document.getElementById('guess-submit').addEventListener('click', () => {
     const date = document.getElementById('guess-submit').dataset.date;
